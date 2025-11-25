@@ -26,7 +26,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ athlete, rankProgress,
         <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl"></div>
         <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl"></div>
 
-        <header className="relative z-10 flex items-start justify-between gap-4">
+        <header className="relative z-10 flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 to-sky-600/5 border border-sky-500/30 overflow-hidden shadow-lg shadow-sky-500/10">
               {athlete.profile ? (
@@ -41,11 +41,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ athlete, rankProgress,
               <p className="text-sm text-slate-400">{athlete.city || 'Middle Earth'}</p>
             </div>
           </div>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-start sm:items-end">
              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Class</span>
              <div className="flex items-center gap-2 text-sky-400 font-semibold">
-               <span className="text-xl">{fellowshipClass.crest}</span>
-               <span className="hidden sm:inline">{fellowshipClass.name}</span>
+               <span className="text-2xl filter drop-shadow-md">{fellowshipClass.crest}</span>
+               <span className="text-lg">{fellowshipClass.name}</span>
              </div>
           </div>
         </header>
@@ -55,19 +55,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ athlete, rankProgress,
             {fellowshipClass.focus === 'multi' ? 'Multi-sport' : fellowshipClass.focus}
           </span>
           <span className="inline-flex items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-300">
-            Total Hrs: {totals.hours.toFixed(0)}
+            {Math.floor(totals.hours)} Hours
           </span>
         </div>
 
-        <div className="relative z-10 mt-6 rounded-xl bg-slate-800/30 p-4 border border-slate-700/30">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">{fellowshipClass.crest}</span>
-            <div>
-              <h4 className="font-bold text-sky-100 text-sm mb-1">{fellowshipClass.name}</h4>
-              <p className="text-sm leading-relaxed text-slate-300 italic">
-                "{fellowshipClass.description}"
-              </p>
-            </div>
+        <div className="relative z-10 mt-6 rounded-xl bg-slate-800/30 p-4 border border-slate-700/30 backdrop-blur-sm">
+          <div className="space-y-2">
+            <p className="text-sm leading-relaxed text-slate-300 italic border-l-2 border-sky-500/50 pl-3">
+              "{fellowshipClass.description}"
+            </p>
+            {fellowshipClass.reasons.length > 0 && (
+              <ul className="mt-2 space-y-1">
+                {fellowshipClass.reasons.map((reason, idx) => (
+                  <li key={idx} className="flex items-center gap-2 text-xs text-sky-400/80">
+                    <span className="h-1 w-1 rounded-full bg-sky-400"></span>
+                    {reason}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </section>
@@ -76,18 +82,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ athlete, rankProgress,
       <section className="glass-panel rounded-3xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-lg font-heading font-bold text-white">Training Rank</h3>
-            <p className="text-sm text-slate-400">{rankProgress.currentRank.name}</p>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-heading font-bold text-white">Training Rank</h3>
+              <span className="text-xs font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-400 border border-slate-700">
+                {rankProgress.levelLabel}
+              </span>
+            </div>
+            <p className="text-sm text-sky-400 font-medium">{rankProgress.currentRank.name}</p>
           </div>
-          <div className="text-4xl drop-shadow-md">{rankProgress.currentRank.emoji}</div>
+          <div className="text-5xl filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300 cursor-help" title={`Rank: ${rankProgress.currentRank.name}`}>
+            {rankProgress.currentRank.emoji}
+          </div>
         </div>
 
         <div className="mb-2 flex justify-between text-xs font-medium text-slate-400">
-          <span>{Math.floor(rankProgress.totalHours)}h total</span>
+          <span>{Math.floor(rankProgress.totalHours)}h logged</span>
           <span>{rankProgress.nextRank ? `Next: ${rankProgress.nextRank.minHours}h` : 'Max Level'}</span>
         </div>
         
-        <div className="relative h-4 w-full overflow-hidden rounded-full bg-slate-800 shadow-inner border border-slate-700">
+        <div className="relative h-4 w-full overflow-hidden rounded-full bg-slate-900 shadow-inner border border-slate-700/50">
           <div 
             className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-orange-500 via-sky-500 to-blue-600 transition-all duration-1000 ease-out"
             style={{ width: `${rankProgress.progressPercent}%` }}
@@ -97,27 +110,33 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ athlete, rankProgress,
         </div>
         
         <div className="mt-4 flex items-center justify-between">
-           <p className="text-xs text-green-400 flex items-center gap-1">
-             <span className="h-2 w-2 rounded-full bg-green-500"></span>
-             {rankProgress.nextRank ? `${Math.ceil(rankProgress.hoursNeeded)}h to ${rankProgress.nextRank.name}` : 'Legendary Status'}
+           <p className="text-xs text-slate-400 flex items-center gap-1.5">
+             {rankProgress.nextRank ? (
+               <>
+                 <span className="h-2 w-2 rounded-full bg-sky-500 animate-pulse"></span>
+                 <span>{Math.ceil(rankProgress.hoursNeeded)}h needed for <span className="text-white font-bold">{rankProgress.nextRank.name}</span></span>
+               </>
+             ) : (
+               <span className="text-amber-400 font-bold">Legendary Status Achieved</span>
+             )}
            </p>
-           <button className="flex items-center gap-1 text-xs font-medium text-sky-400 hover:text-sky-300 transition-colors">
-             Map the ladder <Info size={14} />
+           <button className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-sky-400 transition-colors">
+             Ladder <Info size={14} />
            </button>
         </div>
       </section>
 
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="glass-panel rounded-2xl p-4">
-          <div className="text-3xl mb-2">🌍</div>
-          <p className="text-xs text-slate-400 uppercase tracking-wide">World Trips</p>
-          <p className="text-2xl font-bold text-white">{worldTrips}</p>
+        <div className="glass-panel rounded-2xl p-4 hover:border-sky-500/30 transition-colors group">
+          <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform duration-300">🌍</div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Distance</p>
+          <p className="text-xl font-bold text-white">{worldTrips} <span className="text-sm font-normal text-slate-500">Earths</span></p>
         </div>
-        <div className="glass-panel rounded-2xl p-4">
-          <div className="text-3xl mb-2">🏔️</div>
-          <p className="text-xs text-slate-400 uppercase tracking-wide">Everests</p>
-          <p className="text-2xl font-bold text-white">{everests}</p>
+        <div className="glass-panel rounded-2xl p-4 hover:border-orange-500/30 transition-colors group">
+          <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform duration-300">🏔️</div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Elevation</p>
+          <p className="text-xl font-bold text-white">{everests} <span className="text-sm font-normal text-slate-500">Everests</span></p>
         </div>
       </div>
     </div>

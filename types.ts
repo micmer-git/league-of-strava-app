@@ -1,5 +1,4 @@
 
-
 export interface Activity {
   id: string;
   external_id?: string;
@@ -46,20 +45,22 @@ export interface RankProgress {
   totalHours: number;
   progressPercent: number;
   hoursNeeded: number;
+  levelLabel: string;
 }
 
 export interface FellowshipClass {
   id: string;
   name: string;
   crest: string;
-  description: string;
   focus: string;
-  reasons: string[];
+  description: string;
+  baseScore: number;
+  reasons: string[]; // Why this class was assigned
 }
 
 export interface WalletData {
   totalValue: number;
-  coins: Record<string, number>; // '💲': 10
+  coins: Record<string, number>;
   history: { date: string; value: number }[];
 }
 

@@ -1,0 +1,5 @@
+{
+  "name": "League of Strava",
+  "description": "A gamified fitness dashboard inspired by Middle-earth, tracking Strava activities with a rank system, rewards wallet, and achievements.",
+  "requestFramePermissions": []
+}
